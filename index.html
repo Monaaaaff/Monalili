@@ -929,10 +929,9 @@
 
                 // 3. Load Templates
                 const { data: tplsData, error: tplsErr } = await supabase.from('templates').select('*');
+                formTemplates = [defaultTemplate];
                 if (!tplsErr && tplsData && tplsData.length > 0) {
-                    formTemplates = tplsData;
-                } else {
-                    formTemplates = [defaultTemplate];
+                    formTemplates = [defaultTemplate, ...tplsData];
                 }
 
                 // 4. Load Settings (Telegram & Branding)
@@ -2531,7 +2530,6 @@
         function closeEditTemplateModal() { animateModalClose('editTemplateModal'); }
         
         function editCurrentTemplate() {
-            if (!requireAdminAuth()) return;
             const id = document.getElementById('templateSelect').value;
             if (id) openEditTemplateModal(id);
         }
@@ -2545,17 +2543,25 @@
             if (!name || !content) { showToast('กรุณากรอกข้อมูลให้ครบถ้วน ❌'); return; }
 
             const payload = { name, content };
-            if (id) {
-                await supabase.from('templates').update(payload).eq('id', id);
+            let isSuccess = true;
+
+            if (id && id !== 'tpl_default') {
+                const { error } = await supabase.from('templates').update(payload).eq('id', id);
+                if (error) isSuccess = false;
             } else {
-                await supabase.from('templates').insert(payload);
+                const { error } = await supabase.from('templates').insert(payload);
+                if (error) isSuccess = false;
             }
             
-            await loadDataFromSupabase();
-            updateTemplateDropdown();
-            generateFormText();
-            closeEditTemplateModal();
-            showToast('บันทึกรูปแบบเรียบร้อย ✨');
+            if (isSuccess) {
+                await loadDataFromSupabase();
+                updateTemplateDropdown();
+                generateFormText();
+                closeEditTemplateModal();
+                showToast('บันทึกรูปแบบเรียบร้อย ✨');
+            } else {
+                showToast('เกิดข้อผิดพลาด ไม่สามารถบันทึกได้ ❌');
+            }
         }
 
         async function deleteCurrentTemplate() {
@@ -2563,12 +2569,21 @@
             const id = document.getElementById('editTemplateId').value;
             if (!id || formTemplates.length <= 1) return;
             
-            await supabase.from('templates').delete().eq('id', id);
-            await loadDataFromSupabase();
-            updateTemplateDropdown();
-            generateFormText();
-            closeEditTemplateModal();
-            showToast('ลบรูปแบบเรียบร้อย 🗑️');
+            if (id === 'tpl_default') {
+                showToast('ไม่สามารถลบรูปแบบเริ่มต้นของระบบได้ ❌');
+                return;
+            }
+
+            const { error } = await supabase.from('templates').delete().eq('id', id);
+            if (!error) {
+                await loadDataFromSupabase();
+                updateTemplateDropdown();
+                generateFormText();
+                closeEditTemplateModal();
+                showToast('ลบรูปแบบเรียบร้อย 🗑️');
+            } else {
+                showToast('ไม่สามารถลบรูปแบบได้ ❌');
+            }
         }
 
         function insertTemplateVar(variable) {
