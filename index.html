@@ -863,12 +863,26 @@
                     const { data: adminRow, error: adminErr } = await supabase.from('admins').select('*').eq('id', session.user.id).single();
                     if (!adminErr && adminRow) {
                         currentAdmin = adminRow;
+                        // บันทึกสถานะล็อคอินลงเครื่อง (ระบบจดจำล็อคอิน)
+                        localStorage.setItem('monali_admin_session', JSON.stringify(adminRow));
                     } else {
                         currentAdmin = null;
+                        localStorage.removeItem('monali_admin_session');
                         await supabase.auth.signOut();
                     }
                 } else {
-                    currentAdmin = null;
+                    // ถ้าระบบหลักหมดอายุ ให้ดึงข้อมูลจดจำล็อคอินจากที่บันทึกไว้ในเครื่องขึ้นมาใช้แทน
+                    const savedSession = localStorage.getItem('monali_admin_session');
+                    if (savedSession) {
+                        try {
+                            currentAdmin = JSON.parse(savedSession);
+                        } catch (e) {
+                            currentAdmin = null;
+                            localStorage.removeItem('monali_admin_session');
+                        }
+                    } else {
+                        currentAdmin = null;
+                    }
                 }
             } catch (err) {
                 currentAdmin = null;
@@ -1151,8 +1165,21 @@
             const app = customApps.find(a => a.id === appId);
             if (!app) return;
 
-            const { error } = await supabase.from('apps').delete().eq('id', appId);
-            if (!error) {
+            let isSuccess = true;
+
+            // ตรวจสอบว่าเป็นแอปที่อยู่ในฐานข้อมูลจริงหรือไม่ (มีรูปแบบเป็น UUID)
+            const isDbRecord = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(appId);
+
+            if (isDbRecord) {
+                const { error } = await supabase.from('apps').delete().eq('id', appId);
+                if (error) {
+                    isSuccess = false;
+                    console.error("Delete app error:", error);
+                }
+            }
+
+            if (isSuccess) {
+                // ลบออกจากหน่วยความจำของหน้าจอ
                 customApps = customApps.filter(a => a.id !== appId);
                 renderPresetAppChips('addAppPresetChips', 'accountApp', document.getElementById('accountApp')?.value);
                 renderPresetAppChips('editAppPresetChips', 'editAccApp', document.getElementById('editAccApp')?.value);
@@ -2384,6 +2411,8 @@
                 const { data: adminRow, error: admErr } = await supabase.from('admins').select('*').eq('id', authData.user.id).single();
                 if (!admErr && adminRow) {
                     currentAdmin = adminRow;
+                    // บันทึกสถานะล็อคอินเพื่อให้จำผู้ใช้ไว้ (ระบบจดจำล็อคอิน)
+                    localStorage.setItem('monali_admin_session', JSON.stringify(adminRow));
                     updateAdminStateUI();
                     checkAdminPermissionsUI();
                     showToast(`ยินดีต้อนรับคุณ ${escapeHTML(adminRow.name)} ✨`);
@@ -2404,6 +2433,8 @@
         async function logoutAdmin() {
             await supabase.auth.signOut();
             currentAdmin = null;
+            // ล้างข้อมูลการจดจำล็อคอินเมื่อกดออกจากระบบ
+            localStorage.removeItem('monali_admin_session');
             updateAdminStateUI();
             checkAdminPermissionsUI();
             showToast('ออกจากระบบเรียบร้อยแล้ว 🔒');
