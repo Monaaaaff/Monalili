@@ -133,58 +133,58 @@
 
         <!-- Dashboard Stats Grid (5 Cards) -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 mb-8">
-            <div class="bg-white p-4 sm:p-5 rounded-3xl border border-pink-50 shadow-soft flex flex-col justify-center items-center gap-2 text-center">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-pink-50 flex items-center justify-center text-pink-400 text-lg sm:text-xl shrink-0">
+            <div class="bg-white p-3 sm:p-4 lg:p-5 rounded-3xl border border-pink-50 shadow-soft flex flex-col justify-center items-center gap-2 text-center h-full">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-pink-50 flex items-center justify-center text-pink-400 text-lg shrink-0">
                     <i class="fa-solid fa-layer-group"></i>
                 </div>
-                <div>
-                    <p class="text-[11px] sm:text-xs text-gray-400 font-medium mb-0.5">บัญชีทั้งหมด</p>
-                    <p class="text-xl sm:text-2xl font-bold text-gray-800" id="statTotalAccounts">0</p>
+                <div class="w-full flex flex-col justify-center flex-1">
+                    <p class="text-[10px] sm:text-xs md:text-[11px] lg:text-xs text-gray-400 font-medium mb-1 whitespace-normal break-words leading-tight px-0.5">บัญชีทั้งหมด</p>
+                    <p class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 leading-none" id="statTotalAccounts">0</p>
                 </div>
             </div>
             
-            <div class="bg-white p-4 sm:p-5 rounded-3xl border border-pink-50 shadow-soft flex flex-col justify-center items-center gap-2 text-center">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-green-50 flex items-center justify-center text-green-400 text-lg sm:text-xl shrink-0">
+            <div class="bg-white p-3 sm:p-4 lg:p-5 rounded-3xl border border-pink-50 shadow-soft flex flex-col justify-center items-center gap-2 text-center h-full">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-green-50 flex items-center justify-center text-green-400 text-lg shrink-0">
                     <i class="fa-solid fa-check"></i>
                 </div>
-                <div>
-                    <p class="text-[11px] sm:text-xs text-gray-400 font-medium mb-0.5">ขายแล้ว</p>
-                    <p class="text-xl sm:text-2xl font-bold text-gray-800" id="statSoldScreens">0</p>
+                <div class="w-full flex flex-col justify-center flex-1">
+                    <p class="text-[10px] sm:text-xs md:text-[11px] lg:text-xs text-gray-400 font-medium mb-1 whitespace-normal break-words leading-tight px-0.5">ขายแล้ว</p>
+                    <p class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 leading-none" id="statSoldScreens">0</p>
                 </div>
             </div>
 
-            <div class="bg-white p-4 sm:p-5 rounded-3xl border border-pink-50 shadow-soft flex flex-col justify-center items-center gap-2 text-center cursor-pointer hover:border-gray-300 hover:shadow-cute transition-all group relative" onclick="openAvailableListModal()" title="ดูรายการว่าง">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 text-lg sm:text-xl shrink-0 group-hover:scale-110 transition-transform">
+            <div class="bg-white p-3 sm:p-4 lg:p-5 rounded-3xl border border-pink-50 shadow-soft flex flex-col justify-center items-center gap-2 text-center cursor-pointer hover:border-gray-300 hover:shadow-cute transition-all group relative h-full" onclick="openAvailableListModal()" title="ดูรายการว่าง">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 text-lg shrink-0 group-hover:scale-110 transition-transform">
                     <i class="fa-regular fa-circle"></i>
                 </div>
-                <div>
-                    <p class="text-[11px] sm:text-xs text-gray-400 font-medium mb-0.5 flex items-center justify-center gap-1"><span>จอว่าง</span> <i class="fa-solid fa-arrow-pointer text-[9px] text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"></i></p>
-                    <p class="text-xl sm:text-2xl font-bold text-gray-800" id="statAvailScreens">0</p>
+                <div class="w-full flex flex-col justify-center flex-1">
+                    <p class="text-[10px] sm:text-xs md:text-[11px] lg:text-xs text-gray-400 font-medium mb-1 whitespace-normal break-words leading-tight px-0.5 flex items-center justify-center gap-1"><span>จอว่าง</span> <i class="fa-solid fa-arrow-pointer text-[9px] text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity hidden lg:inline"></i></p>
+                    <p class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 leading-none" id="statAvailScreens">0</p>
                 </div>
             </div>
 
-            <div class="bg-white p-4 sm:p-5 rounded-3xl border border-pink-50 shadow-soft flex flex-col justify-center items-center gap-2 text-center cursor-pointer hover:border-orange-200 hover:shadow-cute transition-all group relative" onclick="openKickListModal()" title="ดูรายการต้องจัดการ">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-400 text-lg sm:text-xl shrink-0 group-hover:scale-110 transition-transform">
+            <div class="bg-white p-3 sm:p-4 lg:p-5 rounded-3xl border border-pink-50 shadow-soft flex flex-col justify-center items-center gap-2 text-center cursor-pointer hover:border-orange-200 hover:shadow-cute transition-all group relative h-full" onclick="openKickListModal()" title="ดูรายการต้องจัดการ">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-400 text-lg shrink-0 group-hover:scale-110 transition-transform">
                     <i class="fa-solid fa-star"></i>
                 </div>
-                <div>
-                    <p class="text-[11px] sm:text-xs text-gray-400 font-medium mb-0.5 flex items-center justify-center gap-1"><span>เตะคืนนี้</span> <i class="fa-solid fa-arrow-pointer text-[9px] text-orange-300 opacity-0 group-hover:opacity-100 transition-opacity"></i></p>
-                    <p class="text-xl sm:text-2xl font-bold text-gray-800" id="statKickScreens">0</p>
+                <div class="w-full flex flex-col justify-center flex-1">
+                    <p class="text-[10px] sm:text-xs md:text-[11px] lg:text-xs text-gray-400 font-medium mb-1 whitespace-normal break-words leading-tight px-0.5 flex items-center justify-center gap-1"><span>เตะคืนนี้</span> <i class="fa-solid fa-arrow-pointer text-[9px] text-orange-300 opacity-0 group-hover:opacity-100 transition-opacity hidden lg:inline"></i></p>
+                    <p class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 leading-none" id="statKickScreens">0</p>
                 </div>
             </div>
 
-            <div class="col-span-2 md:col-span-1 bg-white p-4 sm:p-5 rounded-3xl border border-pink-50 shadow-soft flex flex-col justify-center items-center gap-2 text-center cursor-pointer hover:border-purple-200 hover:shadow-cute transition-all group relative" onclick="openCutoffListModal()" title="ดูรายการบัญชีหลักตัดแอค">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-400 text-lg sm:text-xl shrink-0 group-hover:scale-110 transition-transform">
+            <div class="col-span-2 md:col-span-1 bg-white p-3 sm:p-4 lg:p-5 rounded-3xl border border-pink-50 shadow-soft flex flex-col justify-center items-center gap-2 text-center cursor-pointer hover:border-purple-200 hover:shadow-cute transition-all group relative h-full" onclick="openCutoffListModal()" title="ดูรายการบัญชีหลักตัดแอค">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-400 text-lg shrink-0 group-hover:scale-110 transition-transform">
                     <i class="fa-solid fa-calendar-xmark"></i>
                 </div>
-                <div>
-                    <p class="text-[11px] sm:text-xs text-gray-400 font-medium mb-0.5 flex items-center justify-center gap-1">บัญชีหลักตัดแอค <i class="fa-solid fa-arrow-pointer text-[9px] text-purple-300 opacity-0 group-hover:opacity-100 transition-opacity"></i></p>
-                    <p class="text-xl sm:text-2xl font-bold text-gray-800" id="statCutoffAccounts">0</p>
+                <div class="w-full flex flex-col justify-center flex-1">
+                    <p class="text-[10px] sm:text-xs md:text-[11px] lg:text-xs text-gray-400 font-medium mb-1 whitespace-normal break-words leading-tight px-0.5 flex items-center justify-center gap-1"><span>บัญชีหลักตัดแอค</span> <i class="fa-solid fa-arrow-pointer text-[9px] text-purple-300 opacity-0 group-hover:opacity-100 transition-opacity hidden lg:inline"></i></p>
+                    <p class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 leading-none" id="statCutoffAccounts">0</p>
                 </div>
             </div>
         </div>
 
-        <div class="mb-6">
+        <!-- App Filter Tabs -->
             <div class="flex items-center justify-between mb-2 px-1">
                 <span class="text-xs font-bold text-gray-400 flex items-center gap-1.5">
                     <i class="fa-solid fa-shapes text-pink-400"></i> หมวดหมู่แอปพลิเคชัน
@@ -785,7 +785,7 @@
         let netflixAccounts = [];
         let telegramSettings = { token: '', chatId: '', template: '', cutoffLabel: 'บัญชีหลักตัดแอค', dueLabel: 'จอครบกำหนด' };
         const defaultTgTemplate = `🔔 <b>สรุปรายการประจำวัน Monali</b>\n📅 {date}\n\n{content}\n\n✅ <i>ไม่มีบัญชีหรือจอที่ครบกำหนดในวันนี้และพรุ่งนี้ค่ะ พักผ่อนได้เลย</i> 🎉`;
-        let collapsedAccounts = new Set();
+        let expandedAccounts = new Set();
         let accountIdToDelete = null;
         let screenToDelete = { accountId: null, screenIndex: null };
         let selectedAppFilter = 'all';
@@ -1332,9 +1332,9 @@
                 `;
 
                 accounts.forEach(account => {
-                    const isCollapsed = collapsedAccounts.has(account.id);
-                    const containerClass = isCollapsed ? 'space-y-3 hidden' : 'space-y-3';
-                    const iconClass = isCollapsed ? 'fa-solid fa-chevron-down' : 'fa-solid fa-chevron-up';
+                    const isExpanded = expandedAccounts.has(account.id);
+                    const containerClass = isExpanded ? 'space-y-3' : 'space-y-3 hidden';
+                    const iconClass = isExpanded ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
 
                     const parsedAccExpire = parseLocalDate(account.accountExpireDate);
                     const isCutoff = parsedAccExpire && (parsedAccExpire.setHours(0,0,0,0) <= today.getTime());
@@ -1488,14 +1488,14 @@
             const container = document.getElementById(`screens-container-${accountId}`);
             const icon = document.getElementById(`icon-toggle-${accountId}`);
             
-            if (collapsedAccounts.has(accountId)) {
-                collapsedAccounts.delete(accountId);
-                container.classList.remove('hidden');
-                icon.className = 'fa-solid fa-chevron-up';
-            } else {
-                collapsedAccounts.add(accountId);
+            if (expandedAccounts.has(accountId)) {
+                expandedAccounts.delete(accountId);
                 container.classList.add('hidden');
                 icon.className = 'fa-solid fa-chevron-down';
+            } else {
+                expandedAccounts.add(accountId);
+                container.classList.remove('hidden');
+                icon.className = 'fa-solid fa-chevron-up';
             }
         }
 
@@ -2046,7 +2046,7 @@
             
             const { error } = await supabase.from('accounts').delete().eq('id', accountIdToDelete);
             if (!error) {
-                collapsedAccounts.delete(accountIdToDelete);
+                expandedAccounts.delete(accountIdToDelete);
                 await loadDataFromSupabase();
                 renderDashboard();
                 closeDeleteModal();
@@ -2168,24 +2168,25 @@
         function checkScheduledNotifications() {
             const now = new Date();
             const hours = now.getHours();
-            const minutes = now.getMinutes();
             const todayStr = now.toLocaleDateString('en-CA');
 
             if (!telegramSettings.token || !telegramSettings.chatId) return;
 
-            if (hours === 8 && minutes === 0) {
-                const lastMorning = sessionStorage.getItem('monali_last_morning_notif');
+            // แจ้งเตือนรอบเช้า: ให้ส่งเมื่อเวลา 08:00 - 22:59 และยังไม่ได้ส่งของวันนี้
+            if (hours >= 8 && hours < 23) {
+                const lastMorning = localStorage.getItem('monali_last_morning_notif');
                 if (lastMorning !== todayStr) {
                     sendMorningNotification();
-                    sessionStorage.setItem('monali_last_morning_notif', todayStr);
+                    localStorage.setItem('monali_last_morning_notif', todayStr);
                 }
             }
 
-            if (hours === 23 && minutes === 0) {
-                const lastNight = sessionStorage.getItem('monali_last_night_notif');
+            // แจ้งเตือนรอบดึก: ให้ส่งเมื่อเวลา 23:00 เป็นต้นไป และยังไม่ได้ส่งของวันนี้
+            if (hours >= 23) {
+                const lastNight = localStorage.getItem('monali_last_night_notif');
                 if (lastNight !== todayStr) {
                     sendNightSummary();
-                    sessionStorage.setItem('monali_last_night_notif', todayStr);
+                    localStorage.setItem('monali_last_night_notif', todayStr);
                 }
             }
         }
@@ -2194,7 +2195,24 @@
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> กำลังส่งรอบเช้า...';
             btn.disabled = true;
+            
+            const oldToken = telegramSettings.token;
+            const oldChatId = telegramSettings.chatId;
+            const oldCutoff = telegramSettings.cutoffLabel;
+            const oldDue = telegramSettings.dueLabel;
+            
+            telegramSettings.token = document.getElementById('tgToken').value.trim() || telegramSettings.token;
+            telegramSettings.chatId = document.getElementById('tgChatId').value.trim() || telegramSettings.chatId;
+            telegramSettings.cutoffLabel = document.getElementById('tgCutoffLabel').value.trim() || telegramSettings.cutoffLabel;
+            telegramSettings.dueLabel = document.getElementById('tgDueLabel').value.trim() || telegramSettings.dueLabel;
+            
             await sendMorningNotification();
+            
+            telegramSettings.token = oldToken;
+            telegramSettings.chatId = oldChatId;
+            telegramSettings.cutoffLabel = oldCutoff;
+            telegramSettings.dueLabel = oldDue;
+            
             btn.innerHTML = originalText;
             btn.disabled = false;
             showToast('ส่งแจ้งเตือนรอบเช้า (08.00 น.) ไปยัง Telegram แล้วค่ะ ☀️');
@@ -2204,7 +2222,27 @@
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> กำลังส่งรอบดึก...';
             btn.disabled = true;
+            
+            const oldToken = telegramSettings.token;
+            const oldChatId = telegramSettings.chatId;
+            const oldCutoff = telegramSettings.cutoffLabel;
+            const oldDue = telegramSettings.dueLabel;
+            const oldTemplate = telegramSettings.template;
+            
+            telegramSettings.token = document.getElementById('tgToken').value.trim() || telegramSettings.token;
+            telegramSettings.chatId = document.getElementById('tgChatId').value.trim() || telegramSettings.chatId;
+            telegramSettings.cutoffLabel = document.getElementById('tgCutoffLabel').value.trim() || telegramSettings.cutoffLabel;
+            telegramSettings.dueLabel = document.getElementById('tgDueLabel').value.trim() || telegramSettings.dueLabel;
+            telegramSettings.template = document.getElementById('tgTemplate').value.trim() || telegramSettings.template;
+            
             await sendNightSummary();
+            
+            telegramSettings.token = oldToken;
+            telegramSettings.chatId = oldChatId;
+            telegramSettings.cutoffLabel = oldCutoff;
+            telegramSettings.dueLabel = oldDue;
+            telegramSettings.template = oldTemplate;
+            
             btn.innerHTML = originalText;
             btn.disabled = false;
             showToast('ส่งสรุปรายการรอบดึก (23.00 น.) ไปยัง Telegram แล้วค่ะ 🌙');
