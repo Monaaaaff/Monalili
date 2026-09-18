@@ -510,11 +510,8 @@
                         <button type="button" onclick="testTelegramSettings(this)" class="w-full py-3 rounded-2xl text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors border border-blue-100">
                             <i class="fa-solid fa-paper-plane mr-1.5"></i> ทดสอบส่งข้อความทั่วไป
                         </button>
-                        <button type="button" onclick="manualSendMorningNotification(this)" class="w-full py-3 rounded-2xl text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 transition-colors border border-orange-100">
-                            <i class="fa-solid fa-sun mr-1.5"></i> ทดสอบแจ้งเตือนรอบเช้า (08.00 น.)
-                        </button>
-                        <button type="button" onclick="manualSendNightSummary(this)" class="w-full py-3 rounded-2xl text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 transition-colors border border-purple-100">
-                            <i class="fa-solid fa-moon mr-1.5"></i> ทดสอบสรุปรายการรอบดึก (23.00 น.)
+                        <button type="button" onclick="manualSendDailyNotification(this)" class="w-full py-3 rounded-2xl text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 transition-colors border border-orange-100">
+                            <i class="fa-solid fa-bell mr-1.5"></i> ทดสอบแจ้งเตือนประจำวัน (รอบเช้า)
                         </button>
                         <button type="submit" class="w-full py-3 rounded-2xl text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 transition-colors shadow-soft">
                             บันทึกการตั้งค่า
@@ -2165,62 +2162,59 @@
             btn.disabled = false;
         }
 
-        function checkScheduledNotifications() {
+        let localLastNotifDate = null; // เก็บใน memory เพื่อลดการยิงฐานข้อมูลซ้ำซ้อน
+
+        async function checkScheduledNotifications() {
             const now = new Date();
             const hours = now.getHours();
-            const todayStr = now.toLocaleDateString('en-CA');
+            
+            // สร้างวันที่แบบ YYYY-MM-DD
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
 
             if (!telegramSettings.token || !telegramSettings.chatId) return;
 
-            // แจ้งเตือนรอบเช้า: ให้ส่งเมื่อเวลา 08:00 - 22:59 และยังไม่ได้ส่งของวันนี้
-            if (hours >= 8 && hours < 23) {
-                const lastMorning = localStorage.getItem('monali_last_morning_notif');
-                if (lastMorning !== todayStr) {
-                    sendMorningNotification();
-                    localStorage.setItem('monali_last_morning_notif', todayStr);
-                }
-            }
+            // เช็คว่าเลย 8 โมงเช้ามาแล้วหรือยัง
+            if (hours >= 8) {
+                // ถ้าระบบจำได้ว่าเพิ่งส่งไปใน session นี้ (แท็บนี้) ให้ข้ามไปเลย
+                if (localLastNotifDate === todayStr) return;
 
-            // แจ้งเตือนรอบดึก: ให้ส่งเมื่อเวลา 23:00 เป็นต้นไป และยังไม่ได้ส่งของวันนี้
-            if (hours >= 23) {
-                const lastNight = localStorage.getItem('monali_last_night_notif');
-                if (lastNight !== todayStr) {
-                    sendNightSummary();
-                    localStorage.setItem('monali_last_night_notif', todayStr);
+                try {
+                    // ไปถามฐานข้อมูลกลางว่า "วันนี้มีอุปกรณ์ไหนส่งแจ้งเตือนไปหรือยัง?"
+                    const { data, error } = await supabase
+                        .from('settings')
+                        .select('value')
+                        .eq('key', 'last_notification_date')
+                        .maybeSingle();
+
+                    const dbLastDate = (data && data.value && data.value.date) ? data.value.date : null;
+
+                    // ถ้าวันที่ในฐานข้อมูลไม่ใช่วันนี้ แสดงว่ายังไม่มีอุปกรณ์ไหนส่งเลย
+                    if (dbLastDate !== todayStr) {
+                        // 1. จองคิวโดยอัปเดตลง Database ทันทีเพื่อกันอุปกรณ์อื่นแย่งส่ง
+                        localLastNotifDate = todayStr;
+                        await supabase.from('settings').upsert({
+                            key: 'last_notification_date',
+                            value: { date: todayStr }
+                        }, { onConflict: 'key' });
+
+                        // 2. ทำการส่งข้อความ
+                        await sendDailyNotification();
+                    } else {
+                        // มีอุปกรณ์อื่นส่งไปแล้ว เราก็แค่อัปเดต memory จะได้ไม่เช็คซ้ำ
+                        localLastNotifDate = todayStr;
+                    }
+                } catch (err) {
+                    console.error("Error syncing notification state:", err);
                 }
             }
         }
 
-        async function manualSendMorningNotification(btn) {
+        async function manualSendDailyNotification(btn) {
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> กำลังส่งรอบเช้า...';
-            btn.disabled = true;
-            
-            const oldToken = telegramSettings.token;
-            const oldChatId = telegramSettings.chatId;
-            const oldCutoff = telegramSettings.cutoffLabel;
-            const oldDue = telegramSettings.dueLabel;
-            
-            telegramSettings.token = document.getElementById('tgToken').value.trim() || telegramSettings.token;
-            telegramSettings.chatId = document.getElementById('tgChatId').value.trim() || telegramSettings.chatId;
-            telegramSettings.cutoffLabel = document.getElementById('tgCutoffLabel').value.trim() || telegramSettings.cutoffLabel;
-            telegramSettings.dueLabel = document.getElementById('tgDueLabel').value.trim() || telegramSettings.dueLabel;
-            
-            await sendMorningNotification();
-            
-            telegramSettings.token = oldToken;
-            telegramSettings.chatId = oldChatId;
-            telegramSettings.cutoffLabel = oldCutoff;
-            telegramSettings.dueLabel = oldDue;
-            
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            showToast('ส่งแจ้งเตือนรอบเช้า (08.00 น.) ไปยัง Telegram แล้วค่ะ ☀️');
-        }
-
-        async function manualSendNightSummary(btn) {
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> กำลังส่งรอบดึก...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> กำลังส่งแจ้งเตือน...';
             btn.disabled = true;
             
             const oldToken = telegramSettings.token;
@@ -2235,7 +2229,7 @@
             telegramSettings.dueLabel = document.getElementById('tgDueLabel').value.trim() || telegramSettings.dueLabel;
             telegramSettings.template = document.getElementById('tgTemplate').value.trim() || telegramSettings.template;
             
-            await sendNightSummary();
+            await sendDailyNotification();
             
             telegramSettings.token = oldToken;
             telegramSettings.chatId = oldChatId;
@@ -2245,10 +2239,10 @@
             
             btn.innerHTML = originalText;
             btn.disabled = false;
-            showToast('ส่งสรุปรายการรอบดึก (23.00 น.) ไปยัง Telegram แล้วค่ะ 🌙');
+            showToast('ส่งแจ้งเตือนไปยัง Telegram เรียบร้อยแล้วค่ะ 🔔');
         }
 
-        async function sendMorningNotification() {
+        async function sendDailyNotification() {
             const today = new Date();
             today.setHours(0,0,0,0);
             
@@ -2315,75 +2309,7 @@
             }
 
             if (!hasContent) {
-                contentText = `✅ <i>ไม่มีบัญชีหรือจอที่ต้องจัดการในเช้านี้ค่ะ</i> ✨`;
-            }
-
-            let message = `☀️ <b>แจ้งเตือนประจำวัน (รอบ 08.00 น.)</b>\n📅 ${today.toLocaleDateString('th-TH')}\n\n${contentText}`;
-            await sendTelegramMessage(message);
-        }
-
-        async function sendNightSummary() {
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            
-            let contentText = '';
-            let hasContent = false;
-
-            const cutoffLabel = telegramSettings.cutoffLabel || 'บัญชีหลักตัดแอค';
-            const dueLabel = telegramSettings.dueLabel || 'จอครบกำหนด';
-
-            const appGroups = {};
-            netflixAccounts.forEach(acc => {
-                const appName = getAccountApp(acc);
-                if (!appGroups[appName]) appGroups[appName] = [];
-                appGroups[appName].push(acc);
-            });
-
-            for (const [appName, accounts] of Object.entries(appGroups)) {
-                let appSection = '';
-
-                let cutoffList = [];
-                accounts.forEach(acc => {
-                    if (acc.accountExpireDate) {
-                        const parsedExp = parseLocalDate(acc.accountExpireDate);
-                        if (parsedExp) {
-                            const exp = parsedExp.setHours(0,0,0,0);
-                            if (exp <= today.getTime()) cutoffList.push(`- ${escapeHTML(acc.name)} (ถึงกำหนด)`);
-                        }
-                    }
-                });
-
-                if (cutoffList.length > 0) {
-                    appSection += `🔴 <b>${cutoffLabel}:</b>\n${cutoffList.join('\n')}\n`;
-                }
-
-                let dueList = [];
-                accounts.forEach(acc => {
-                    acc.screens.forEach((screen, index) => {
-                        if (screen.expireDate) {
-                            const parsedExp = parseLocalDate(screen.expireDate);
-                            if (parsedExp) {
-                                const exp = parsedExp.setHours(0,0,0,0);
-                                if (exp <= today.getTime()) {
-                                    dueList.push(`- ${escapeHTML(acc.name)} จอ ${index+1}`);
-                                }
-                            }
-                        }
-                    });
-                });
-
-                if (dueList.length > 0) {
-                    appSection += `⭐️ <b>${dueLabel}:</b>\n${dueList.join('\n')}\n`;
-                }
-
-                if (appSection) {
-                    contentText += `📱 <b>[ ${appName} ]</b>\n${appSection}\n`;
-                    hasContent = true;
-                }
-            }
-
-            if (!hasContent) {
-                contentText = `✅ <i>ไม่มีบัญชีหรือจอที่ครบกำหนดในวันนี้ค่ะ พักผ่อนได้เลย</i> 🎉`;
+                contentText = `✅ <i>ไม่มีบัญชีหรือจอที่ต้องจัดการในวันนี้ค่ะ</i> ✨`;
             }
 
             let template = telegramSettings.template || defaultTgTemplate;
