@@ -184,6 +184,21 @@
             </div>
         </div>
 
+        <!-- Search Bar -->
+        <div class="mb-5">
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-pink-500">
+                    <i class="fa-solid fa-magnifying-glass text-gray-400 group-focus-within:text-pink-400 transition-colors"></i>
+                </div>
+                <input type="text" id="searchInput" oninput="handleSearch(event)" 
+                    class="block w-full pl-11 pr-10 py-3.5 bg-white border border-pink-50 rounded-2xl text-sm shadow-soft focus:ring-2 focus:ring-pink-300 focus:border-pink-300 transition-all placeholder-gray-400 text-gray-800" 
+                    placeholder="ค้นหาชื่อบัญชี, อีเมล, PIN หรือหมายเหตุ...">
+                <button id="clearSearchBtn" onclick="clearSearch()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-300 hover:text-pink-500 hidden transition-colors">
+                    <i class="fa-solid fa-circle-xmark text-lg"></i>
+                </button>
+            </div>
+        </div>
+
         <!-- App Filter Tabs -->
             <div class="flex items-center justify-between mb-2 px-1">
                 <span class="text-xs font-bold text-gray-400 flex items-center gap-1.5">
@@ -786,6 +801,7 @@
         let accountIdToDelete = null;
         let screenToDelete = { accountId: null, screenIndex: null };
         let selectedAppFilter = 'all';
+        let searchQuery = '';
 
         const APP_COLOR_PALETTES = [
             { id: 'pink', name: 'ชมพู', badge: 'bg-pink-500 text-white', lightBg: 'bg-pink-50 text-pink-600 border-pink-200' },
@@ -1058,6 +1074,24 @@
             renderDashboard();
         }
 
+        function handleSearch(event) {
+            searchQuery = event.target.value.toLowerCase().trim();
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (searchQuery.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderDashboard();
+        }
+
+        function clearSearch() {
+            searchQuery = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            renderDashboard();
+        }
+
         function renderPresetAppChips(containerId, inputId, selectedValue = '') {
             const container = document.getElementById(containerId);
             if (!container) return;
@@ -1268,23 +1302,50 @@
 
             emptyState.classList.add('hidden');
 
-            const filteredAccounts = selectedAppFilter === 'all' 
+            let filteredAccounts = selectedAppFilter === 'all' 
                 ? netflixAccounts 
                 : netflixAccounts.filter(a => getAccountApp(a).toLowerCase() === selectedAppFilter.toLowerCase());
 
+            if (searchQuery) {
+                filteredAccounts = filteredAccounts.filter(acc => {
+                    const matchAccName = (acc.name || '').toLowerCase().includes(searchQuery);
+                    const matchAccEmail = (acc.email || '').toLowerCase().includes(searchQuery);
+                    const matchScreens = acc.screens.some(s => 
+                        (s.pin || '').toLowerCase().includes(searchQuery) ||
+                        (s.notes || '').toLowerCase().includes(searchQuery)
+                    );
+                    return matchAccName || matchAccEmail || matchScreens;
+                });
+            }
+
             if (filteredAccounts.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="text-center py-12 bg-white rounded-3xl border border-pink-50 shadow-soft">
-                        <div class="w-16 h-16 bg-pink-50 text-pink-300 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
-                            <i class="fa-solid fa-filter"></i>
+                if (searchQuery) {
+                    listContainer.innerHTML = `
+                        <div class="text-center py-12 bg-white rounded-3xl border border-pink-50 shadow-soft">
+                            <div class="w-16 h-16 bg-gray-50 text-gray-300 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-700">ไม่พบผลลัพธ์ที่ตรงกับ "${escapeHTML(searchQuery)}"</h4>
+                            <p class="text-xs text-gray-400 mt-1 mb-4">ลองค้นหาด้วยคำอื่น เช่น อีเมล, ชื่อบัญชี หรือ PIN</p>
+                            <button onclick="clearSearch()" class="text-xs font-bold text-gray-500 bg-gray-100 px-4 py-2 rounded-xl shadow-sm hover:bg-gray-200 transition-all">
+                                ล้างการค้นหา
+                            </button>
                         </div>
-                        <h4 class="font-bold text-gray-700">ไม่มีบัญชีในหมวดหมู่ "${escapeHTML(selectedAppFilter)}"</h4>
-                        <p class="text-xs text-gray-400 mt-1 mb-4">คุณสามารถเพิ่มบัญชีใหม่สำหรับแอปนี้ได้เลยค่ะ</p>
-                        <button onclick="openAddAccountModal('${escapeJS(selectedAppFilter)}')" class="text-xs font-bold text-white bg-pink-500 px-4 py-2 rounded-xl shadow-cute hover:bg-pink-600 transition-all">
-                            + เพิ่มบัญชี ${escapeHTML(selectedAppFilter)}
-                        </button>
-                    </div>
-                `;
+                    `;
+                } else {
+                    listContainer.innerHTML = `
+                        <div class="text-center py-12 bg-white rounded-3xl border border-pink-50 shadow-soft">
+                            <div class="w-16 h-16 bg-pink-50 text-pink-300 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                                <i class="fa-solid fa-filter"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-700">ไม่มีบัญชีในหมวดหมู่ "${escapeHTML(selectedAppFilter)}"</h4>
+                            <p class="text-xs text-gray-400 mt-1 mb-4">คุณสามารถเพิ่มบัญชีใหม่สำหรับแอปนี้ได้เลยค่ะ</p>
+                            <button onclick="openAddAccountModal('${escapeJS(selectedAppFilter)}')" class="text-xs font-bold text-white bg-pink-500 px-4 py-2 rounded-xl shadow-cute hover:bg-pink-600 transition-all">
+                                + เพิ่มบัญชี ${escapeHTML(selectedAppFilter)}
+                            </button>
+                        </div>
+                    `;
+                }
                 return;
             }
 
@@ -1329,7 +1390,7 @@
                 `;
 
                 accounts.forEach(account => {
-                    const isExpanded = expandedAccounts.has(account.id);
+                    const isExpanded = expandedAccounts.has(account.id) || searchQuery !== '';
                     const containerClass = isExpanded ? 'space-y-3' : 'space-y-3 hidden';
                     const iconClass = isExpanded ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
 
